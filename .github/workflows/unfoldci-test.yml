@@ -1,0 +1,57 @@
+name: UnfoldCI Flaky Test Evaluation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        run: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run tests with JUnit output
+        run: |
+          mkdir -p test-results
+          pytest tests/ \
+            --junitxml=test-results/junit-results.xml \
+            --randomly-seed=${{ matrix.run }} \
+            -v \
+            || true
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.run }}
+          path: test-results/
+          retention-days: 30
+      
+      - name: Run UnfoldCI Analysis
+        if: always()
+        id: flaky-analysis
+        uses: UnfoldAI-Labs/UnfoldCI-flaky-autopilot-action@v1
+        with:
+          api-key: ${{ secrets.UNFOLDCI_API_KEY }}
+          results-path: test-results/junit-results.xml
+          comment-on-pr: 'true'       
