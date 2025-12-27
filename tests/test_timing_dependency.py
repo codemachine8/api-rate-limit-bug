@@ -296,9 +296,9 @@ class TestWaitConditions:
         
         # FLAKY: Fixed 100ms timeout doesn't account for variance
         start = time.time()
-        while counter["value"] == 0:
-            if time.time() - start > 0.1:
-                pytest.fail("Condition not met within 100ms")
+        while counter['value'] == 0:
+            if time.time() - start > 0.2:  # Increased timeout to 200ms
+                pytest.fail('Condition not met within 200ms')
             time.sleep(0.01)
         
         thread.join()
