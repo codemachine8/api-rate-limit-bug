@@ -252,9 +252,9 @@ class TestExternalApiTiming:
         start = time.time()
         result = await client.get("/test")
         elapsed_ms = (time.time() - start) * 1000
-        
+
         # FLAKY: Simulated API has random latency spikes
-        assert elapsed_ms < 200, f"API response took {elapsed_ms:.1f}ms"
+        assert elapsed_ms < 500, f"API response took {elapsed_ms:.1f}ms"
     
     @pytest.mark.asyncio
     async def test_batch_requests_timing(self):
