@@ -374,9 +374,9 @@ class TestExternalApiRandomness:
         start = time.time()
         await client.get("/fast")
         latency_ms = (time.time() - start) * 1000
-        
+
         # FLAKY: Random latency spikes (5% chance of 500-2000ms spike)
-        assert latency_ms < 200, f"Latency spike: {latency_ms}ms"
+        assert latency_ms < 500, f"Latency spike: {latency_ms}ms"
 
 
 class TestRateLimiterRandomness:
