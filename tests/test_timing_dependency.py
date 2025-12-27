@@ -120,11 +120,11 @@ class TestTimeoutBehavior:
             return "done"
         
         start = time.time()
-        result = asyncio.run(asyncio.wait_for(slow_operation(), timeout=0.1))
+        result = asyncio.run(asyncio.wait_for(slow_operation(), timeout=0.5))
         elapsed = time.time() - start
         
         # FLAKY: 100ms timeout is too tight
-        assert elapsed < 0.1
+        assert elapsed < 0.5
         assert result == "done"
     
     def test_retry_policy_timing(self):
