@@ -288,10 +288,14 @@ class TestTimeBasedAssertions:
         FIX: Mock datetime
         """
         from datetime import datetime
-        day = datetime.now().weekday()
+        from unittest.mock import patch
         
-        # FLAKY: Only passes Monday-Friday
-        assert day < 5, f"Expected weekday, got day {day}"
+        with patch('datetime.datetime') as mock_datetime:
+            mock_datetime.now.return_value = datetime(2023, 10, 2)  # Mock a Monday
+            day = mock_datetime.now().weekday()
+            
+            # Now it should always pass
+            assert day < 5, f"Expected weekday, got day {day}"
 
 
 class TestDistributedCacheRandomness:
