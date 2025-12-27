@@ -172,13 +172,21 @@ class TestDatabaseSetupDependency:
         FLAKY: Depends on both test_01 and test_02
         FIX: Independent setup
         """
-        repo = TestDatabaseSetupDependency._repository
-        
-        # FLAKY: Repository might not exist
-        assert repo is not None, "Repository not created"
-        
-        # Would fail if pool wasn't initialized
-        result = await repo.find_by_id(1)
+        pool = TestDatabaseSetupDependency._pool
+
+                # Ensure pool is initialized
+                if pool is None:
+                    pool = ConnectionPool("test_iso_pool", min_connections=2, max_connections=5)
+                    await pool.initialize()
+
+                repo = TestDatabaseSetupDependency._repository
+
+                # Ensure repository is initialized
+                if repo is None:
+                    repo = Repository("users", pool)
+
+                # Would fail if pool wasn't initialized
+                result = await repo.find_by_id(1)
 
 
 class TestCacheWarmupDependency:
